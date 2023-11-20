@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
+
+    - name: Load secret
+      uses: 1password/load-secrets-action@v1
+      with:
+        # Export loaded secrets as environment variables
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_REGION: op://<vault>/AWS_REGION/credential
+        AWS_ACCESS_KEY: op://<vault>/AWS_ACCESS_KEY/credential
+        AWS_SECRET_ACCESS_KEY: op://<vault>/AWS_SECRET_ACCESS_KEY/credential
+        CDK_DEPLOY_ROLE_ARN: op://<vault>/CDK_DEPLOY_ROLE_ARN/credential
+        CDK_DEPLOY_ROLE_NAME: op://<vault>/CDK_DEPLOY_ROLE_NAME/credential
+
+    - name: configure aws credentials for deployment
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: ${{ env.CDK_DEPLOY_ROLE_ARN }}
+        role-session-name: ${{ env.CDK_DEPLOY_ROLE_NAME }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy
+      run: |
+        npm install -g aws-cdk
+        pip install -r requirements.txt
+        cd infrastructure
+        cdk deploy --all --require-approval never
+
