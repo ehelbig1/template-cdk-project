@@ -37,8 +37,8 @@ jobs:
         AWS_REGION: op://<vault>/AWS_REGION/credential
         AWS_ACCESS_KEY: op://<vault>/AWS_ACCESS_KEY/credential
         AWS_SECRET_ACCESS_KEY: op://<vault>/AWS_SECRET_ACCESS_KEY/credential
-        CDK_DEPLOY_ROLE_ARN: op://<vault>/CDK_DEPLOY_ROLE_ARN/credential
-        CDK_DEPLOY_ROLE_NAME: op://<vault>/CDK_DEPLOY_ROLE_NAME/credential
+        CDK_DEPLOY_ROLE_ARN: op://<vault>/CDK_DEPLOYMENT_ROLE_ARN/credential
+        CDK_DEPLOY_ROLE_NAME: op://<vault>/CDK_DEPLOYMENT_ROLE_NAME/credential
 
     - name: configure aws credentials for deployment
       uses: aws-actions/configure-aws-credentials@v3
